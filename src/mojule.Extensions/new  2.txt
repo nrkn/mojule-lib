@@ -1,0 +1,30 @@
+public static bool Intersects( this Line line, IPoint c, double r )
+    const Vector2& c,        // center
+    float r,                            // radius
+    const Vector2& p1,     // segment start
+    const Vector2& p2)     // segment end
+{
+    var dir = new Point{
+      X = line.End.X - line.Start.X,
+      Y = line.End.Y - line.Start.Y
+    };
+    var diff = new Point {
+      X = c.X - line.Start.X,
+      Y = c.Y - line.Start.Y
+    };
+    var t = diff.Dot(dir) / dir.Dot(dir);
+    if (t < 0.0)
+        t = 0.0;
+    if (t > 1.0)
+        t = 1.0;
+    var closest = new Point{
+      X = line.Start.X + t * dir.X,
+      Y = line.Start.Y + y * dir.Y
+    };
+    var d = new Point {
+      X = center.X - closest.X,
+      Y = center.Y - closest.Y
+    };
+    var distsqr = d.Dot(d);
+    return distsqr <= r * r;
+}

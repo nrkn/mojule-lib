@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <title>mojule.Foo tests</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="qunit.css" />
+    <script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+    <script src="qunit.js"></script>
+    <script src="mojule.Foo.js"></script>
+    <script>
+      $(function () {
+        function runTests( tests ) {
+          expect( tests.length );
+          for( var i = 0; i < tests.length; i++ ) {
+            var test = tests[ i ];            
+            if( typeof test.expect == 'object' ) {
+              deepEqual(
+                test.result,
+                test.expect,
+                ( test.name ? test.name : '' ) + ( test.description ? test.description : '' ) + '. Expected ' + test.expect + ' as the result, result was: ' + test.result 
+              );            
+              continue;
+            }
+            equal(
+              test.result,
+              test.expect,
+              ( test.name ? test.name : '' ) + ( test.description ? test.description : '' ) + '. Expected ' + test.expect + ' as the result, result was: ' + test.result 
+            );
+          }                      
+        }
+        
+        module( 'mojule.Foo' );
+      });
+    </script>
+  </head>
+  <body>
+    <h1 id="qunit-header">QUnit mojule.Foo</h1>  
+    <h2 id="qunit-banner"></h2>  
+    <h2 id="qunit-userAgent"></h2>  
+    <ol id="qunit-tests">    
+  </body>
+</html>  

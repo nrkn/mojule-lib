@@ -1,0 +1,695 @@
+<!doctype html>
+<html>
+  <head>
+    <title>mojule.Geometry tests</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="qunit.css" />
+    <script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+    <script src="qunit.js"></script>
+    <script src="../mojule.Extensions/mojule.Extensions.js"></script>
+    <script src="../mojule.Mapper/mojule.Mapper.js"></script>    
+    <script src="mojule.Geometry.js"></script>
+    <script>      
+      $(function () {
+        var _ = mojule.Extensions;
+        function runTests( tests ) {
+          expect( tests.length );
+          for( var i = 0; i < tests.length; i++ ) {
+            var test = tests[ i ];            
+            if( typeof test.expect == 'object' ) {
+              deepEqual(
+                test.result,
+                test.expect,
+                ( test.name ? test.name : '' ) + ( test.description ? test.description : '' ) + '. Expected ' + test.expect + ' as the result, result was: ' + test.result 
+              );            
+              continue;
+            }
+            equal(
+              test.result,
+              test.expect,
+              ( test.name ? test.name : '' ) + ( test.description ? test.description : '' ) + '. Expected ' + test.expect + ' as the result, result was: ' + test.result 
+            );
+          }                      
+        }
+        
+        module( 'mojule.Geometry' );
+        
+        test( 'mojule.Point Constructor', function(){
+          var pass = '-12,0.5', 
+              tests = [
+                { 
+                  description: 'no args',
+                  value: null,
+                  expect: '0,0'
+                },
+                {
+                  description: 'from string',
+                  value: '[Point (x=-12 y=.5)]',
+                  expect: pass
+                },
+                {
+                  description: 'from array',
+                  value: [ -12, .5 ],
+                  expect: pass
+                },
+                {
+                  description: 'from args',
+                  result: new Point( -12, .5 ).toString(),
+                  expect: pass
+                },
+                {
+                  description: 'from point object',
+                  value: { x: -12, y: .5 },
+                  expect: pass
+                },
+                {
+                  description: 'from line object',
+                  value: new Line( 6.3, 4, 12, .5 ),
+                  expect: '5.7,3.5'
+                },
+                {
+                  description: 'from size object',
+                  value: new Size( 12, .5 ),
+                  expect: '12,0.5'
+                },                
+                {
+                  description: 'from rectangle object',
+                  value: new Rectangle( 2, 0, 12, .5 ),
+                  expect: '12,0.5'
+                },
+                {
+                  description: 'from left/top object',
+                  value: { left: -12, top: .5 },
+                  expect: pass
+                }
+              ];
+          
+          function result( test ) {
+            return new Point( test.value ).toString()
+          }     
+
+          for( var i = 0; i < tests.length; i++ ) {
+            tests[ i ].result = tests[ i ].result ? tests[ i ].result : result( tests[ i ] );
+          }  
+          
+          runTests( tests );                  
+        });
+        
+        test( 'mojule.Point Informative functions', function(){
+          var point = new Point( -12.3, .5 ),
+              tests = [
+                {
+                  args: [ new Point( -6.3, 4 ) ],
+                  name: 'lineFrom',
+                  expect: '-6.3,4,-12.3,0.5',
+                  stringify: true
+                },
+                {
+                  args: [ new Point( -6.3, 4 ) ],
+                  name: 'lineTo',
+                  expect: '-12.3,0.5,-6.3,4',
+                  stringify: true
+                },
+                {
+                  args: [ -12.3, .5 ],
+                  name: 'equals',
+                  expect: true
+                },
+                {
+                  args: [ -12, 1 ],
+                  name: 'equals',
+                  expect: false
+                },
+                {
+                  args: [ -12.3000005, .5000005 ],
+                  name: 'almostEquals',
+                  expect: true
+                },
+                {
+                  args: [ -12.0000005, 1.0000005 ],
+                  name: 'almostEquals',
+                  expect: false
+                },
+                {                
+                  args: [],
+                  name: 'toString',
+                  expect: '-12.3,0.5'
+                },                
+                //integer triangle vector test
+                {                  
+                  name: 'length',
+                  expect: true,
+                  result: _( new Point( 4, 3 ).length() ).almostEquals( 5 )
+                },
+                //integer triangle vector test
+                {
+                  name: 'unitVector',
+                  expect: '0.8,0.6',
+                  result: new Point( 4, 3 ).unitVector().toString()
+                },
+              ];
+
+          function result( test ) {
+            var newPoint = point.clone();
+            var result = newPoint[ test.name ].apply( newPoint, test.args );
+            return test.stringify ? result.toString() : result;
+          }
+          
+          for( var i = 0; i < tests.length; i++ ) {
+            tests[ i ].result = tests[ i ].result ? tests[ i ].result : result( tests[ i ] );
+          }            
+          
+          runTests( tests );
+        });
+        
+        test( 'mojule.Point Modifying functions', function(){
+          var point = new Point( -12, .5 ),
+              tests = [
+                {
+                  args: null,
+                  name: 'round',
+                  expect: '-12,1'
+                },                
+                { 
+                  args: [ { x: 6, y: -3 } ],
+                  name: 'translate',
+                  expect: '-6,-2.5'
+                },
+                {
+                  args: [ 90 ],
+                  name: 'rotate',
+                  expect: '-0.5000000000000008,-12'
+                },
+                //integer triangle vector test
+                {                  
+                  name: 'length',
+                  expect: true,
+                  result: (function(){
+                    var intPoint = new Point( 4, 3 );
+                    intPoint.length( 10 );
+                    return intPoint.almostEquals( [ 8, 6 ] );
+                  })()
+                },             
+                //integer triangle vector test
+                {                  
+                  name: 'scale',
+                  expect: true,
+                  result: (function(){
+                    var intPoint = new Point( 4, 3 );
+                    intPoint.scale( 2 );
+                    return intPoint.almostEquals( [ 8, 6 ] );
+                  })()
+                },             
+              ];
+              
+          function result( test ) {
+            var newPoint = point.clone();
+            return newPoint[ test.name ].apply( newPoint, test.args ).toString();
+          }
+          
+          for( var i = 0; i < tests.length; i++ ) {
+            tests[ i ].result = tests[ i ].result ? tests[ i ].result : result( tests[ i ] );
+          }             
+          
+          runTests( tests );              
+        });
+        
+        test( 'mojule.Line Constructor', function(){
+          var pass = '-12,0.5,-6.3,4', 
+              tests = [
+                { 
+                  description: 'no args',
+                  value: null,
+                  expect: '0,0,0,0'
+                },
+                {
+                  description: 'from string',
+                  value: '[Line[Start(x=-12 y=.5),End(x=-6.3 y=4)]]',
+                  expect: pass
+                },
+                {
+                  description: 'from array',
+                  value: [ -12, .5, -6.3, 4 ],
+                  expect: pass
+                },
+                {
+                  description: 'from args',
+                  result: new Line( -12, .5, -6.3, 4 ).toString(),
+                  expect: pass
+                },
+                {
+                  description: 'from point',
+                  value: { x: -12, y: .5 },
+                  expect: '0,0,-12,0.5'
+                },
+                {
+                  description: 'from points array',
+                  value: [ { x: -12, y: .5 }, { x: -6.3, y: 4 } ],
+                  expect: pass
+                },
+                {
+                  description: 'from points args',
+                  result: new Line( { x: -12, y: .5 }, { x: -6.3, y: 4 } ).toString(),
+                  expect: pass
+                },
+                {
+                  description: 'from line',
+                  value: new Line( -12, .5, -6.3, 4 ),
+                  expect: pass
+                },
+                {
+                  description: 'from rectangle',
+                  value: new Rectangle( 0, 0, 6.3, 4 ),
+                  expect: '0,0,6.3,4'
+                },
+                {
+                  description: 'from size',
+                  value: new Size( 6.3, 4 ),
+                  expect: '0,0,6.3,4'
+                }
+              ];
+          
+          function result( test ) {
+            return new Line( test.value ).toString()
+          }     
+
+          for( var i = 0; i < tests.length; i++ ) {
+            tests[ i ].result = tests[ i ].result ? tests[ i ].result : result( tests[ i ] );
+          }  
+          
+          runTests( tests );                  
+        });  
+
+        test( 'mojule.Line Informative functions', function(){
+          var line = new Line( -12.3, .5, 3.7, -6 ),
+              tests = [
+                {
+                  args: [ -12.3, .5, 3.7, -6 ],
+                  name: 'equals',
+                  expect: true
+                },
+                {
+                  args: [ -12, 1, 4, -6 ],
+                  name: 'equals',
+                  expect: false
+                },                
+                {
+                  args: [ -12.3000005, .5000005, 3.7000005, -6.0000005 ],
+                  name: 'almostEquals',
+                  expect: true
+                },
+                {
+                  args: [ -12.000005, 1.000005, 4.000005, -6.000005 ],
+                  name: 'almostEquals',
+                  expect: false
+                },
+                {
+                  args: [],
+                  name: 'toString',
+                  expect: '-12.3,0.5,3.7,-6'
+                },                
+                {
+                  args: null,
+                  name: 'start',
+                  expect: '-12.3,0.5',
+                  stringify: true
+                },
+                {
+                  args: null,
+                  name: 'end',
+                  expect: '3.7,-6',
+                  stringify: true
+                },
+                {
+                  args: null,
+                  name: 'bresenham',
+                  result: (function(){
+                            var points = new Line( 0, 0, 3, 1 ).bresenham();
+                            var values = []
+                            for( var i = 0; i < points.length; i++ ){
+                              values.push( points[ i ].x );
+                              values.push( points[ i ].y );
+                            }
+                            return values.join( ',' );
+                          })(),
+                  expect: '0,0,1,0,2,1,3,1'
+                }
+              ];
+              
+          function result( test ) {
+            var newLine = line.clone();
+            var result = newLine[ test.name ].apply( newLine, test.args );
+            return test.stringify ? result.toString() : result;
+          }
+          
+          for( var i = 0; i < tests.length; i++ ) {
+            tests[ i ].result = tests[ i ].result ? tests[ i ].result : result( tests[ i ] );
+          }  
+
+          runTests( tests );
+        }); 
+
+        test( 'mojule.Line Modifying functions', function(){
+          var line = new Line( -12.3, .5, 3.7, -6 ),
+              tests = [
+                {
+                  args: [],
+                  name: 'round',
+                  expect: '-12,1,4,-6',
+                  stringify: true
+                },                
+                {
+                  name: 'start',
+                  args: [ { x: 6, y: -3 } ],
+                  expect: '6,-3,3.7,-6',
+                  stringify: true
+                },
+                {
+                  name: 'end',
+                  args: [ { x: 6, y: -3 } ],
+                  expect: '-12.3,0.5,6,-3',
+                  stringify: true
+                },
+                { 
+                  name: 'translate',                  
+                  result: line.clone().translate( 6, -3 ).almostEquals( new Line( -6.3, -2.5, 9.7, -9 ) ),
+                  expect: true
+                }           
+              ];
+              
+          function result( test ) {
+            var newLine = line.clone();
+            var result = newLine[ test.name ].apply( newLine, test.args );
+            return test.stringify ? result.toString() : result;
+          }
+          
+          for( var i = 0; i < tests.length; i++ ) {
+            tests[ i ].result = tests[ i ].result ? tests[ i ].result : result( tests[ i ] );
+          }
+          
+          runTests( tests );              
+        }); 
+
+        test( 'mojule.Size Constructor', function(){
+          var pass = '12,0.5', 
+              tests = [
+                { 
+                  description: 'no args',
+                  value: null,
+                  expect: '0,0'
+                },
+                {
+                  description: 'from string',
+                  value: '[Size (x=12 y=.5)]',
+                  expect: pass
+                },
+                {
+                  description: 'from array',
+                  value: [ 12, .5 ],
+                  expect: pass
+                },
+                {
+                  description: 'from args',
+                  result: new Size( 12, .5 ).toString(),
+                  expect: pass
+                },
+                {
+                  description: 'from point object',
+                  value: { x: 12, y: .5 },
+                  expect: pass
+                },
+                {
+                  description: 'from line object',
+                  value: new Line( 0, 0, 12, .5 ),
+                  expect: pass
+                },
+                {
+                  description: 'from size object',
+                  value: new Size( 12, .5 ),
+                  expect: pass
+                },
+                {
+                  description: 'from left/top/right/bottom object',
+                  value: { left: 0, right: 12, top: 0, bottom: .5 },
+                  expect: pass
+                },
+                {
+                  description: 'from x1/y1/x2/y2',
+                  value: { x1: 0, x2: 12, y1: 0, y2: .5 },
+                  expect: pass
+                },
+                {
+                  description: 'from rectangle',
+                  value: new Rectangle( 0, 0, 12, .5 ),
+                  expect: pass
+                }
+              ];
+          
+          function result( test ) {
+            return new Size( test.value ).toString()
+          }     
+
+          for( var i = 0; i < tests.length; i++ ) {
+            var test = tests[ i ];
+            test.result = test.result ? test.result : result( test );
+          }  
+          
+          runTests( tests );                  
+        });
+
+        test( 'mojule.Size Informative functions', function(){
+          var size = new Size( 12, .5 ),
+              tests = [
+                {
+                  args: [ 12, .5 ],
+                  name: 'equals',
+                  expect: true
+                },
+                {
+                  args: [ 12, 1 ],
+                  name: 'equals',
+                  expect: false
+                },
+                {
+                  args: [ 12.0000005, .5000005 ],
+                  name: 'almostEquals',
+                  expect: true
+                },
+                {
+                  args: [ 12.0000005, 1 ],
+                  name: 'almostEquals',
+                  expect: false
+                },                
+                {
+                  args: [],
+                  name: 'toString',
+                  expect: '12,0.5'
+                }                    
+              ];
+              
+          function result( test ) {
+            var newSize = size.clone();
+            var result = newSize[ test.name ].apply( newSize, test.args );
+            return test.stringify ? result.toString() : result;
+          }
+          
+          for( var i = 0; i < tests.length; i++ ) {
+            tests[ i ].result = tests[ i ].result ? tests[ i ].result : result( tests[ i ] );
+          }  
+
+          runTests( tests );
+        });
+        
+        //echoes the size constructor - but grid.size is integer
+        test( 'mojule.Grid Constructor', function(){
+          var pass = '12,1', 
+              tests = [
+                { 
+                  description: 'no args',
+                  value: null,
+                  expect: '0,0'
+                },
+                {
+                  description: 'from string',
+                  value: '[Size (x=-12 y=.5)]',
+                  expect: pass
+                },
+                {
+                  description: 'from array',
+                  value: [ -12, .5 ],
+                  expect: pass
+                },
+                {
+                  description: 'from args',
+                  result: new Grid( new Size( -12, .5 ) ).size().toString(),
+                  expect: pass
+                },
+                {
+                  description: 'from point object',
+                  value: { x: -12, y: .5 },
+                  expect: pass
+                },
+                {
+                  description: 'from line object',
+                  value: new Line( 0, 0, -12, .5 ),
+                  expect: pass
+                },
+                {
+                  description: 'from size object',
+                  value: new Size( -12, .5 ),
+                  expect: pass
+                },
+                {
+                  description: 'from left/top/right/bottom object',
+                  value: { left: 0, right: -12, top: 0, bottom: .5 },
+                  expect: pass
+                },
+                {
+                  description: 'from x1/y1/x2/y2',
+                  value: { x1: 0, x2: -12, y1: 0, y2: .5 },
+                  expect: pass
+                },
+                {
+                  description: 'from rectangle',
+                  value: new Rectangle( 0, 0, -12, .5 ),
+                  expect: pass
+                }
+              ];
+          
+          function result( test ) {
+            return new Grid( test.value ).size().toString();
+          }     
+
+          for( var i = 0; i < tests.length; i++ ) {
+            var test = tests[ i ];
+            test.result = test.result ? test.result : result( test );
+          }  
+          
+          runTests( tests );                  
+        }); 
+
+        test( 'mojule.Grid Informative functions', function(){
+          var width = 3,
+              height = 4,
+              init = function(x,y){ return width * y + x; },
+              grid = ( new Grid( width, height ) ).setEach( init ),
+              testArr = [],
+              tests = [
+                {
+                  args: [],
+                  name: 'size',
+                  expect: '3,4'
+                },
+                {
+                  args: [],
+                  name: 'toString',
+                  expect: '3,4,[0,1,2,3,4,5,6,7,8,9,10,11]'
+                },
+                {
+                  args: [ function( element ){ return '~' + element; } ],
+                  name: 'toString',
+                  expect: '3,4,~0,~1,~2,~3,~4,~5,~6,~7,~8,~9,~10,~11'
+                },
+                {
+                  name: 'cells',
+                  expect: '[0,1,2,3,4,5,6,7,8,9,10,11]',
+                  result: JSON.stringify( grid.cells() )
+                },
+                {
+                  args: [],
+                  name: 'clone',
+                  expect: '3,4,[0,1,2,3,4,5,6,7,8,9,10,11]'
+                },
+                {
+                  args: [ ( new Grid( width, height ) ).setEach( init ) ],
+                  name: 'equals',
+                  expect: true
+                },
+                {
+                  args: [ ( new Grid( width + 1, height + 1 ) ).cells( grid.cells() ) ],
+                  name: 'equals',
+                  expect: false
+                },
+                {
+                  args: [ ( new Grid( width, height ) ).setEach( function(){ return 0; } ) ],
+                  name: 'equals',
+                  expect: false
+                },
+                {
+                  name: 'each',
+                  result: ( function(){ 
+                    grid.each( function( value ){ 
+                      testArr.push( value ); 
+                    }); 
+                    return JSON.stringify( testArr ); 
+                  })(),
+                  expect: '[0,1,2,3,4,5,6,7,8,9,10,11]'
+                },
+                {
+                  name: 'each',
+                  result: ( function(){ 
+                    testArr = []; 
+                    grid.each( function( value, x, y ){ 
+                      testArr.push( width * y + x ); 
+                    }); 
+                    return JSON.stringify( testArr ); 
+                  })(),
+                  expect: '[0,1,2,3,4,5,6,7,8,9,10,11]'
+                },                
+                {
+                  name: 'each',
+                  result: ( function(){ 
+                    testArr = []; 
+                    grid.each( function( value, x, y, w, h ){ 
+                      testArr.push( w * y + x + h ); 
+                    }); 
+                    return JSON.stringify( testArr ); 
+                  })(),
+                  expect: '[4,5,6,7,8,9,10,11,12,13,14,15]'
+                },
+                {
+                  args: [ 1, 2 ],
+                  name: 'get',
+                  expect: '7'
+                },
+                {
+                  args: [],
+                  name: 'bounds',
+                  expect: '0,0,3,4'
+                },
+                {
+                  name: 'rows',
+                  result: JSON.stringify( grid.rows() ),
+                  expect: '[[0,1,2],[3,4,5],[6,7,8],[9,10,11]]'
+                },
+                {
+                  name: 'columns',
+                  result: JSON.stringify( grid.columns() ),
+                  expect: '[[0,3,6,9],[1,4,7,10],[2,5,8,11]]'
+                } 
+              ];
+              
+          function result( test ) {
+            var newGrid = grid.clone(),
+                result = newGrid[ test.name ].apply( newGrid, test.args );
+                
+            return test.stringify ? result.toString() : result;
+          }
+          
+          for( var i = 0; i < tests.length; i++ ) {
+            tests[ i ].result = tests[ i ].result ? tests[ i ].result : result( tests[ i ] );
+          }  
+
+          runTests( tests );
+        });
+        //console.log( Line );        
+      });
+    </script>
+  </head>
+  <body>
+    <h1 id="qunit-header">QUnit mojule.Geometry</h1>  
+    <h2 id="qunit-banner"></h2>  
+    <h2 id="qunit-userAgent"></h2>  
+    <ol id="qunit-tests">    
+  </body>
+</html>  

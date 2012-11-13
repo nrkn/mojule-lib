@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <title>mojule.Geometry visual</title>
+    <meta charset="utf-8" />
+    <script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+    <script src="../mojule.Extensions/mojule.Extensions.js"></script>
+    <script src="../mojule.Mapper/mojule.Mapper.js"></script>    
+    <script src="mojule.Geometry.js"></script>    
+    <script>
+$(function () {
+  var canvas = $( 'canvas' )[ 0 ],
+      context = canvas.getContext( '2d' ),
+      point1 = new Point( 0, 300 ),
+      point2 = new Point( 0, 150 );
+  
+  for( var i = 0; i < 360; i += 10 ) {
+    var newPoint1 = point1.clone().rotate( i );
+    context.beginPath();
+    context.moveTo( 0, 0 );
+    context.lineTo( newPoint1.x, newPoint1.y );
+    context.closePath();
+    context.stroke();
+  }
+  
+  for( var i = 0; i < 360; i += 10 ) {
+    var newPoint2 = point2.clone().rotate( i, [ 150, 150 ] );
+    context.strokeStyle = '#39f';
+    context.beginPath();
+    context.moveTo( 150, 150 );
+    context.lineTo( newPoint2.x, newPoint2.y );
+    context.closePath();
+    context.stroke();    
+  }
+  
+  var line = new Line( 0.5, 75.5, 300, 225 );
+  var points = line.bresenham();
+  context.fillStyle = '#f00';
+  for( var i = 0; i < points.length; i++ ) {
+    var point = points[ i ];
+    context.fillRect( point.x, point.y, 1, 1 );
+  }
+  
+  var point = new Point( 1, 2 );
+  $( 'p' ).append( point.lineFrom( 3, 4 ).toString() + '<br />' );
+});      
+    </script>
+  </head>
+  <body>
+    <canvas width="300" height="300"></canvas>
+    <p></p>
+  </body>
+</html>

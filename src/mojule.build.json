@@ -1,0 +1,69 @@
+{
+  "name": "mojule",
+  "version": "0.0.236",
+  "description": "mojule framework",
+  "modules": [
+    {
+      "name": "Extensions",
+      "version": "0.0.235",
+      "description": "Extend functionality without monkeypatching native objects",
+      "requires": [],
+      "exports": [
+        "Extensions"
+      ],
+      "localAliases": {},
+      "wrap": true
+    },
+    {
+      "name": "Mapper",
+      "version": "0.0.233",
+      "description": "Maps objects to different objects, for constructors etc.",
+      "requires": [
+        "Extensions"
+      ],
+      "exports": [
+        "Mapper"
+      ],
+      "localAliases": {
+        "Extensions": "_"
+      },
+      "wrap": true
+    },
+    {
+      "name": "Geometry",
+      "version": "0.0.231",
+      "description": "Geometry objects",
+      "requires": [
+        "Extensions",
+        "Mapper"
+      ],
+      "exports": [
+        "Point",
+        "Line",
+        "Size",
+        "Rectangle",
+        "Grid"
+      ],
+      "localAliases": {
+        "Extensions": "_"
+      },
+      "wrap": true
+    },
+    {
+      "name": "Color",
+      "version": "1.0.234",
+      "description": "A comprehensive JavaScript color class",
+      "requires": [
+        "Extensions",
+        "Mapper"
+      ],
+      "exports": [
+        "Color"
+      ],
+      "localAliases": {
+        "Extensions": "_"
+      },
+      "wrap": true
+    }
+  ]
+}

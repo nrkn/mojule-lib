@@ -1,0 +1,323 @@
+<!doctype html>
+<html>
+  <head>
+    <title>mojule.Extensions tests</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="qunit.css" />
+    <script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+    <script src="qunit.js"></script>
+    <script>
+      var _ = 'test';
+    </script>
+    <script src="mojule.Extensions.js"></script>
+    <script>
+      $(function () {
+        function runTests( tests ) {
+          expect( tests.length );
+          for( var i = 0; i < tests.length; i++ ) {
+            var test = tests[ i ];            
+            if( typeof test.expect == 'object' ) {
+              deepEqual(
+                test.result,
+                test.expect,
+                ( test.name ? test.name : '' ) + ( test.description ? test.description : '' ) + '. Expected ' + test.expect + ' as the result, result was: ' + test.result 
+              );            
+              continue;
+            }
+            equal(
+              test.result,
+              test.expect,
+              ( test.name ? test.name : '' ) + ( test.description ? test.description : '' ) + '. Expected ' + test.expect + ' as the result, result was: ' + test.result 
+            );
+          }                      
+        }
+        
+        module( 'mojule.Extensions' );
+        
+        test( 'Scoping', function() {
+          expect( 1 );
+          equal( _, 'test', "Doesn't overwrite _" );
+        });
+        
+        var $ = mojule.Extensions;
+        
+        test( 'mojule.Extensions number.clamp', function() {
+          expect( 3 );
+          equal( $( 5 ).clamp( 1, 4 ), 4, 'Above clamp range' );
+          equal( $( 0 ).clamp( 1, 4 ), 1, 'Below clamp range' );
+          equal( $( 4 ).clamp( 1, 4 ), 4, 'Within clamp range' );
+        });        
+        
+        test( 'mojule.Extensions number.wrap', function() {
+          expect( 3 );
+          equal( $( 780 ).wrap( 360 ), 60, 'Above wrap range' );
+          equal( $( -60 ).wrap( 360 ), 300, 'Below wrap range' );
+          equal( $( 180 ).wrap( 360 ), 180, 'Within wrap range' );
+        });    
+
+        
+        test( 'mojule.Extensions number.toRadians', function() {
+          expect( 3 );
+          equal( $( 1 ).toRadians().toFixed( 10 ),  '0.0174532925', 'One degree to radians' );
+          equal( $( 45 ).toRadians().toFixed( 9 ), '0.785398163', '45 degrees to radians' );
+          equal( $( 123.4 ).toRadians().toFixed( 7 ), '2.1537363', '123.4 degrees to radians' );
+        });           
+        
+        test( 'mojule.Extensions number.difference', function() {
+          expect( 5 );
+          equal( $( 1 ).difference( 5 ), 4, 'positive integers' );
+          equal( $( 5 ).difference( 1 ), 4, 'positive integers, reverse' );
+          equal( $( -1 ).difference( -5 ), 4, 'negative integers' );
+          equal( $( -1 ).difference( 5 ), 6, 'mixed integers' );
+          equal( $( 0.5 ).difference( 0.125 ), 0.375, 'floats' );
+        });
+        
+        test( 'mojule.Extensions number.step', function() {
+          expect( 3 );
+          equal( $( 1 ).step( 5 ), 1, 'positive' );
+          equal( $( 1 ).step( -5 ), -1, 'negative' );
+          equal( $( -5 ).step( -5 ), 0, 'same' );
+        });  
+
+        test( 'mojule.Extensions number.toFixed', function() {
+          expect( 3 );
+          equal( $( Math.PI ).toFixed( 0 ), 3, 'Zero digits' );
+          equal( $( Math.PI ).toFixed( 2 ), 3.14, 'Two digits' );
+          equal( $( Math.PI ).toFixed( 3 ), 3.142, 'Three digits' );
+        });  
+
+        test( 'mojule.Extensions number.almostEquals', function() {
+          expect( 4 );
+          equal( $( Math.PI ).almostEquals( 3, 0 ), true, 'Zero digits' );
+          equal( $( Math.PI ).almostEquals( 3.14, 2 ), true, 'Two digits' );
+          equal( $( Math.PI ).almostEquals( 3.142, 3 ), true, 'Three digits' );
+          equal( $( Math.PI ).almostEquals( 3.2, 1 ), false, 'Not almost equal' );
+        });               
+
+        test( 'mojule.Extensions string.trim', function() {
+          expect( 4 );
+          equal( $( '  foo bar  ' ).trim(), 'foo bar', 'space at both ends' );
+          equal( $( '  foo bar' ).trim(), 'foo bar', 'space at start' );
+          equal( $( 'foo bar  ' ).trim(), 'foo bar', 'space at end' );
+          equal( $( 'foo bar' ).trim(), 'foo bar', 'no space' );
+        });   
+        
+        var template1 = "X {a} {b}",
+            obj1 = { a: 'Y', b: 'Z' },
+            obj2 = { a: 'Y' };
+            
+        test( 'mojule.Extensions string.inject', function() {
+          expect( 3 );
+          equal( $( template1 ).inject( obj1 ), 'X Y Z', 'inject all' );
+          equal( $( template1 ).inject( obj2 ), 'X Y {b}', 'inject one' );
+          equal( $( template1 ).inject( {} ), template1, 'inject nothing' );
+        });         
+        
+        test( 'mojule.Extensions array.first', function() {
+          expect( 5 );
+          equal( $( [] ).first(), undefined, 'empty array, no predicate' );
+          equal( $( [] ).first(function(value){return value==0;}), undefined, 'empty array, predicate' );
+          equal( $( [ 2, 4, 6 ] ).first(), 2, 'no predicate' );
+          equal( $( [ 2, 4, 6 ] ).first(function(value){ return value > 2; }), 4, 'predicate' );
+          equal( $( [ 2, 4, 6 ] ).first(function(value){ return value > 6; }), undefined, 'predicate without matches' );
+        });             
+        
+        test( 'mojule.Extensions array.any', function() {
+          expect( 3 );
+          equal( $( [] ).any(function(value){ return value > 6 }), false, 'empty array' );
+          equal( $( [ 2, 4, 6 ] ).any(function(value){ return value > 6 }), false, 'array doesn\'t meet condition' );
+          equal( $( [ 2, 4, 6 ] ).any(function(value){ return value > 4 }), true, 'array meets condition' );
+        });             
+        
+        test( 'mojule.Extensions array.all', function() {
+          expect( 3 );
+          equal( $( [] ).all(function(value){ return value === 6 }), true, 'empty array' );
+          equal( $( [ 2, 4, 6 ] ).all(function(value){ return value === 6 }), false, 'array doesn\'t meet condition' );
+          equal( $( [ 6, 6, 6 ] ).all(function(value){ return value === 6 }), true, 'array meets condition' );
+        });
+        
+        test( 'mojule.Extensions array.allOfType', function() {
+          expect( 4 );
+          equal( $( [] ).allOfType('number'), true, 'empty array' );
+          equal( $( [ 2, 'a', 6 ] ).allOfType('number'), false, 'array doesn\'t meet condition' );
+          equal( $( [ 2, '4', 6 ] ).allOfType('number'), false, 'array doesn\'t meet condition' );
+          equal( $( [ 2, 4, 6 ] ).allOfType('number'), true, 'array meets condition' );
+        });
+        
+        var r, g = 10, b, a, x = 5;
+        
+        test( 'module.Extensions array.firstDefined', function() {
+          expect( 3 );
+          equal( $( [] ).firstDefined(), undefined, 'empty array' );
+          equal( $( [ r, g, b ] ).firstDefined(), 10, 'array with a value' );
+          equal( $( [ r, b, a ] ).firstDefined(), undefined, 'array without a value' );
+        }); 
+        
+        test( 'module.Extensions array.anyDefined', function() {
+          expect( 3 );
+          equal( $( [] ).anyDefined(), false, 'empty array' );
+          equal( $( [ r, g, b ] ).anyDefined(), true, 'array with a value' );
+          equal( $( [ r, b, a ] ).anyDefined(), false, 'array without a value' );
+        }); 
+        
+        test( 'module.Extensions array.allDefined', function() {
+          expect( 3 );
+          equal( $( [] ).allDefined(), true, 'empty array' );
+          equal( $( [ g, x ] ).allDefined(), true, 'array, all with a value' );
+          equal( $( [ r, g, b ] ).allDefined(), false, 'array, some without values' );
+        }); 
+                
+        test( 'module.Extensions array.elementsEqual', function() {
+          expect( 6 );
+          equal( $( [] ).elementsEqual( [] ), true, 'empty array' );
+          equal( $( [ 1, 2, 3 ] ).elementsEqual( [ 1, 2 ] ), false, 'different sized arrays' );
+          equal( $( [ 1, 2, 3 ] ).elementsEqual( [ 3, 2, 1 ] ), false, 'same sized arrays, contents different' );
+          equal( $( [ 1, 2, 3 ] ).elementsEqual( [ 1, 2, 3 ] ), true, 'same sized arrays, contents same' );
+          equal( $( [ 1, [ 2, 3 ] ] ).elementsEqual( [ 1, [ 3, 2 ] ] ), false, 'multidimensional array, contents different' );
+          equal( $( [ 1, [ 2, 3 ] ] ).elementsEqual( [ 1, [ 2, 3 ] ] ), true, 'multidimensional array, contents same' );
+        });   
+        
+        test( 'module.Extensions array.min', function() {
+          expect( 2 );
+          equal( $( [] ).min(), Infinity, 'empty array' );
+          equal( $( [ 5, 2, 4 ] ).min(), 2, 'array' );
+        });
+        
+        test( 'module.Extensions array.max', function() {
+          expect( 2 );
+          equal( $( [] ).max(), -Infinity, 'empty array' );
+          equal( $( [ 5, 2, 4 ] ).max(), 5, 'array' );
+        });
+        
+        test( 'module.Extensions array.count', function() {
+          expect( 3 );
+          equal( $( [] ).count(), 0, 'empty array length without predicate' );
+          equal( $( [] ).count( function( element ){ return element > 2; } ), 0, 'empty array length' );
+          equal( $( [ 1, 5, 2, 4, 6, 12 ] ).count(), 6, 'array wihtout ' );
+        }); 
+        
+        test( 'module.Extensions array.chunk', function() {
+          expect( 2 );
+          var result = $( [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ] ).chunk( 3 ),
+              expected = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ];
+              
+          ok( $( result ).elementsEqual( expected ), 'chunk 9 long into 3' );
+          
+          result = $( [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ] ).chunk( 2 );
+          expected = [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9 ] ];      
+
+          ok( $( result ).elementsEqual( expected ), 'chunk 9 long into 2' );          
+        });        
+        
+        test( 'module.Extensions arguments.toValue', function() {
+          expect( 3 );
+          (function(){            
+            equal( $( arguments ).toValue(), undefined, 'no arguments' );
+          }());
+          (function(){
+            equal( $( arguments ).toValue(), 'hello', 'single argument' );
+          }( 'hello' ));
+          (function(){
+            equal( $( $( arguments ).toValue() ).elementsEqual( ['hello','world'] ), true, 'multiple arguments' );
+          }( 'hello', 'world' ));
+        });
+        
+        test( 'mojule.Extensions object.equals', function() {
+          expect( 2 );
+          (function(){
+            equal( $( { x: 1, y: 2, z: 3 } ).equals( { x: 1, y: 2 }, [ 'x', 'y' ] ), true, 'partial property compare' );
+          }());
+          (function(){
+            equal( $( { x: 1, y: 2, z: 3 } ).equals( { x: 2, y: 2 }, [ 'x', 'y' ] ), false, 'fail property compare' );
+          }());
+        });  
+        
+        test( 'mojule.Extensions object.almostEquals', function() {
+          expect( 2 );
+          (function(){
+            equal( $( { x: 1, y: 2, z: 3 } ).almostEquals( { x: 1.00001, y: 2.00001 }, [ 'x', 'y' ] ), true, 'partial property compare' );
+          }());
+          (function(){
+            equal( $( { x: 1, y: 2, z: 3 } ).almostEquals( { x: 2.00001, y: 2.00001 }, [ 'x', 'y' ] ), false, 'fail property compare' );
+          }());
+        });  
+        
+        test( 'mojule.Extensions object.injectToString', function() {
+          expect( 3 );
+          (function(){
+            equal( $( { x: 1, y: 2, z: 3 } ).injectToString( '{x}-{y}-{z}' ), '1-2-3', 'all values' );
+          }());
+          (function(){
+            equal( $( { x: 1, y: 2 } ).injectToString( '{x}-{y}-{z}' ), '1-2-{z}', 'two values' );
+          }());
+          (function(){
+            equal( $( {} ).injectToString( '{x}-{y}-{z}' ), '{x}-{y}-{z}', 'no values' );
+          }());
+        });
+        
+        test( 'mojule.Extensions object.hasAllProperties', function() {
+          expect( 5 );
+          var testDefinedObj = {
+            a: 1,
+            b: 2,
+            c: 3,
+            d: undefined
+          };
+          ok( $( testDefinedObj ).hasAllProperties( [ 'a', 'b', 'c' ] ), 'obj, all properties' );
+          ok( $( testDefinedObj ).hasAllProperties( [ 'a', 'b' ] ), 'obj, subset' );
+          ok( !$( testDefinedObj ).hasAllProperties( [ 'a', 'b', 'c', 'd' ] ), 'obj, superset (should fail)' );
+          ok( !$( testDefinedObj ).hasAllProperties( [ 'a', 'b', 'c', 'e' ] ), 'obj, superset (should fail)' );
+          ok( !$( {} ).hasAllProperties( [ 'a', 'b', 'c' ] ), 'empty literal, should fail' );
+        });
+
+        test( 'module.Extensions.getClass', function() {
+          expect( 6 );
+          function MyClass(){}
+          var instance = new MyClass();
+          equal( $.getClass( instance ), 'MyClass', 'Custom class' );
+          equal( $.getClass( (function(){ return arguments; }()) ), 'Arguments', 'Arguments' );
+          equal( $.getClass( 42 ), 'Number', 'Number' );
+          equal( $.getClass( [] ), 'Array', 'Array' );
+          equal( $.getClass( {} ), 'Object', 'Object' );
+          equal( $.getClass( function(){} ), 'Function', 'Function' );
+        });
+        
+        test( 'module.Extensions.addMath', function() {
+          function MyClass( a, b, c ){
+            var self = this;
+            
+            this.x = a;
+            this.y = b;
+            this.z = c;
+            
+            this.set = function( a, b, c ) {
+              self.x = a;
+              self.y = b;
+              self.z = c;
+            };
+            
+            $.addMath( this, [ 'x', 'y', 'z' ] );
+          };
+          
+          var instance = new MyClass( Math.PI, 2.4, 2.5 );
+          
+          expect( 3 )
+          instance.round();          
+          equal( $( [ instance.x, instance.y, instance.z ] ).elementsEqual( [ 3, 2, 3 ] ), true, "round all properties" );
+          instance.set( Math.PI, 2.4, 2.5 );
+          instance.floor();
+          equal( $( [ instance.x, instance.y, instance.z ] ).elementsEqual( [ 3, 2, 2 ] ), true, "floor all properties" );
+          instance.set( Math.PI, 2.4, 2.5 );
+          instance.ceil();
+          equal( $( [ instance.x, instance.y, instance.z ] ).elementsEqual( [ 4, 3, 3 ] ), true, "ceil all properties" );
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <h1 id="qunit-header">QUnit mojule.Extensions</h1>  
+    <h2 id="qunit-banner"></h2>  
+    <h2 id="qunit-userAgent"></h2>  
+    <ol id="qunit-tests">    
+  </body>
+</html>  
