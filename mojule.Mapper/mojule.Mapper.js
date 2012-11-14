@@ -1,12 +1,12 @@
 /*!
- * Mapper 0.0.233
+ * Mapper 0.0.234
  * Maps objects to different objects, for constructors etc.
  * http://mojule.co.nz/
  *
  * Copyright 2011, Information Age Ltd
  * Licensed under the MIT License
  *
- * Date: 2012-07-16 11:18:53Z
+ * Date: 2012-11-14 14:23:32Z
  */
 
 //  Declare but don't overwrite mojule if it already exists - this way parts of 

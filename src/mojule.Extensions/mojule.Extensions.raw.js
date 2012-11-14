@@ -177,7 +177,7 @@ var _ = mojule.Extensions = function( value ) {
           }
           
           //test for implementation of equals first, otherwise use operator
-          if( value[ i ].equal !== undefined && typeof value[ i ].equals === 'function' ) {
+          if( value[ i ].equals !== undefined && typeof value[ i ].equals === 'function' ) {
             if( !value[ i ].equals( arr[ i ] ) ) {
               return false
             }

@@ -1,12 +1,12 @@
 /*!
- * Extensions 0.0.235
+ * Extensions 0.0.236
  * Extend functionality without monkeypatching native objects
  * http://mojule.co.nz/
  *
  * Copyright 2011, Information Age Ltd
  * Licensed under the MIT License
  *
- * Date: 2012-07-16 11:18:53Z
+ * Date: 2012-11-14 14:23:32Z
  */
 
 //  Declare but don't overwrite mojule if it already exists - this way parts of 
@@ -195,7 +195,7 @@ var mojule = mojule === undefined ? {} : mojule;
             }
             
             //test for implementation of equals first, otherwise use operator
-            if( value[ i ].equal !== undefined && typeof value[ i ].equals === 'function' ) {
+            if( value[ i ].equals !== undefined && typeof value[ i ].equals === 'function' ) {
               if( !value[ i ].equals( arr[ i ] ) ) {
                 return false
               }

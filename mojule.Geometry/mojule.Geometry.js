@@ -1,12 +1,12 @@
 /*!
- * Geometry 0.0.231
+ * Geometry 0.0.232
  * Geometry objects
  * http://mojule.co.nz/
  *
  * Copyright 2011, Information Age Ltd
  * Licensed under the MIT License
  *
- * Date: 2012-07-16 11:18:53Z
+ * Date: 2012-11-14 14:23:32Z
  */
 
 //  Declare but don't overwrite mojule if it already exists - this way parts of 
@@ -27,10 +27,6 @@ var mojule = mojule === undefined ? {} : mojule;
   
   //initialize a new geometry item
   function init( instance, Type, args ) {
-    //DEBUG REMOVE
-    var Type2 = instance.constructor.name;
-    console.log( Type2 );
-    
     //mojule.Geometry class constructors should have a mapping for themselves
     instance.clone = function() {
       return new Type( instance );
@@ -308,7 +304,7 @@ var mojule = mojule === undefined ? {} : mojule;
       } 
     ) 
   );
-  mojule.Line = function MojuleLine(){
+  mojule.Line = function (){
     var self = this;
     
     init( self, mojule.Line, arguments );

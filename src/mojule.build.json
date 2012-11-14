@@ -1,11 +1,11 @@
 {
   "name": "mojule",
-  "version": "0.0.236",
+  "version": "0.0.237",
   "description": "mojule framework",
   "modules": [
     {
       "name": "Extensions",
-      "version": "0.0.235",
+      "version": "0.0.236",
       "description": "Extend functionality without monkeypatching native objects",
       "requires": [],
       "exports": [
@@ -16,7 +16,7 @@
     },
     {
       "name": "Mapper",
-      "version": "0.0.233",
+      "version": "0.0.234",
       "description": "Maps objects to different objects, for constructors etc.",
       "requires": [
         "Extensions"
@@ -31,7 +31,7 @@
     },
     {
       "name": "Geometry",
-      "version": "0.0.231",
+      "version": "0.0.232",
       "description": "Geometry objects",
       "requires": [
         "Extensions",
@@ -51,7 +51,7 @@
     },
     {
       "name": "Color",
-      "version": "1.0.234",
+      "version": "1.0.235",
       "description": "A comprehensive JavaScript color class",
       "requires": [
         "Extensions",
